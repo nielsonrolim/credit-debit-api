@@ -1,0 +1,37 @@
+FROM ruby:3.3.0-alpine3.19
+
+RUN apk add --update --virtual \
+  runtime-deps \
+  postgresql16-client \
+  build-base \
+  libxml2-dev \
+  libxslt-dev \
+  nodejs \
+  # yarn \
+  libffi-dev \
+  readline \
+  build-base \
+  postgresql16-dev \
+  sqlite-dev \
+  libc-dev \
+  linux-headers \
+  readline-dev \
+  file \
+  imagemagick \
+  git \
+  tzdata \
+  bash \
+  && rm -rf /var/cache/apk/*
+
+RUN mkdir -p /app
+WORKDIR /app
+
+COPY Gemfile Gemfile.lock ./
+# COPY package.json yarn.lock ./
+
+ENV PATH="/app/bin:${PATH}"
+ENV BUNDLE_PATH /gems
+
+RUN gem update --system
+RUN bundle install -j $(nproc)
+# RUN yarn install
