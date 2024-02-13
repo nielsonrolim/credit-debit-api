@@ -1,5 +1,9 @@
 class AccountEntriesController < ApplicationController
-  before_action :validate_entry_type, :set_account_entry_attributes, :check_account
+  before_action :validate_value,
+                :validate_entry_type,
+                :validate_description,
+                :set_account_entry_attributes,
+                :check_account
 
   VALID_ENTRY_TYPES = %w[c d].freeze
 
@@ -11,25 +15,37 @@ class AccountEntriesController < ApplicationController
       handle_transaction_error(transaction:)
     end
   rescue ActiveRecord::ConnectionAdapters::PostgreSQL::Quoting::IntegerOutOf64BitRange
-    render json: { erro: 'Valor grande demais' }, status: :bad_request
+    render json: { erro: 'Valor grande demais' }, status: :unprocessable_entity
   rescue StandardError
-    render json: { erro: 'Oxe!' }, status: :bad_request
+    render json: { erro: 'Oxe!' }, status: :unprocessable_entity
   end
 
   private
 
   def permitted_params
-    params.permit(:account_id, :valor, :tipo, :descricao)
+    params.permit(:account_id, :valor, :tipo, :descricao, account_entry: {})
+  end
+
+  def validate_value
+    return if permitted_params[:valor].instance_of?(Integer)
+
+    render json: { erro: 'Valor deve ser inteiro' }, status: :unprocessable_entity and return
+  end
+
+  def validate_description
+    return if permitted_params[:descricao].present? && permitted_params[:descricao] !~ /^\d/
+
+    render json: { erro: 'Descrição inválida' }, status: :unprocessable_entity and return
   end
 
   def validate_entry_type
     return if VALID_ENTRY_TYPES.include? permitted_params[:tipo]&.downcase
 
-    render json: { erro: "Tipo deve ser 'c' ou 'd' " }, status: :bad_request and return
+    render json: { erro: "Tipo deve ser 'c' ou 'd'" }, status: :unprocessable_entity and return
   end
 
   def set_account_entry_attributes
-    entry_type = permitted_params[:tipo]
+    entry_type = permitted_params[:tipo].downcase
     @account_id = permitted_params[:account_id]
     @value = entry_type == 'c' ? permitted_params[:valor].to_i : permitted_params[:valor].to_i * -1
     @description = permitted_params[:descricao]
