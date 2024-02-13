@@ -33,7 +33,7 @@ class AccountEntriesController < ApplicationController
   end
 
   def validate_description
-    return if permitted_params[:descricao].present? && permitted_params[:descricao] !~ /^\d/
+    return if permitted_params[:descricao].present? && permitted_params[:descricao] !~ /^\d{9}/
 
     render json: { erro: 'Descrição inválida' }, status: :unprocessable_entity and return
   end
