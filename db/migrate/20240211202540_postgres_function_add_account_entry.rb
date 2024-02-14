@@ -16,7 +16,7 @@ class PostgresFunctionAddAccountEntry < ActiveRecord::Migration[7.1]
             into current_credit_limit, current_balance
             from accounts
             where id = account_id
-            for update;
+            for update nowait;
 
           new_balance = current_balance + value;
 
