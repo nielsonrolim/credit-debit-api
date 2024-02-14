@@ -15,42 +15,46 @@ class Account < ApplicationRecord
     Account.add_account_entry(account_id: id, value:, description:)
   end
 
-  def self.add_account_entry(account_id:, value:, description: '')
-    add_account_entry_ruby(account_id:, value:, description: '')
-  end
+  class << self
+    def add_account_entry(account_id:, value:, description: '')
+      add_account_entry_ruby(account_id:, value:, description:)
+    end
 
-  def self.add_account_entry_pg(account_id:, value:, description: '')
-    query = 'select * from add_account_entry(:account_id, :value, :description);'
-    result = ActiveRecord::Base.connection.execute(
-      ApplicationRecord.sanitize_sql([query, { account_id:, value:, description: }])
-    )
-    result&.first
-  end
+    private
 
-  # rubocop:disable Metrics/MethodLength
-  def self.add_account_entry_ruby(account_id:, value:, description: '')
-    Account.transaction do
-      account = Account.select(:id, :credit_limit, :balance).lock('FOR UPDATE').find(account_id)
-      new_balance = account.balance + value
+    def add_account_entry_pg(account_id:, value:, description: '')
+      query = 'select * from add_account_entry(:account_id, :value, :description);'
+      result = ActiveRecord::Base.connection.execute(
+        ApplicationRecord.sanitize_sql([query, { account_id:, value:, description: }])
+      )
+      result&.first
+    end
 
-      if new_balance < account.credit_limit * -1
-        return { 'success' => false,
-                 'message' => 'credit_limit_exceeded',
-                 'current_balance' => account.balance,
+    # rubocop:disable Metrics/MethodLength
+    def add_account_entry_ruby(account_id:, value:, description: '')
+      Account.transaction do
+        account = Account.select(:id, :credit_limit, :balance).lock('FOR UPDATE').find(account_id)
+        new_balance = account.balance + value
+
+        if new_balance < account.credit_limit * -1
+          return { 'success' => false,
+                   'message' => 'credit_limit_exceeded',
+                   'current_balance' => account.balance,
+                   'current_limit' => account.credit_limit }
+        end
+
+        account.update(balance: new_balance)
+
+        account.account_entries.create(value:, description:)
+
+        return { 'success' => true,
+                 'message' => 'ok',
+                 'current_balance' => new_balance,
                  'current_limit' => account.credit_limit }
       end
-
-      account.update(balance: new_balance)
-
-      account.account_entries.create(value:, description:)
-
-      return { 'success' => true,
-               'message' => 'ok',
-               'current_balance' => new_balance,
-               'current_limit' => account.credit_limit }
     end
+    # rubocop:enable Metrics/MethodLength
   end
-  # rubocop:enable Metrics/MethodLength
 
   def last_account_entries
     account_entries.order(created_at: :desc).limit(10)
