@@ -7,7 +7,7 @@ More info about the challenge here: https://github.com/zanfranceschi/rinha-de-ba
 #### Tech Stack
 - Ruby 3.3.0
 - Ruby on Rails 7.1.3
-- PostgreSQL 16.1
+- PostgreSQL 16.2
 - Blueprinter 1.0.2 as serializer
 - Oj 3.16.3 as JSON parsers
 
