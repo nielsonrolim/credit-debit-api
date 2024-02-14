@@ -11,12 +11,12 @@ class PostgresFunctionAddAccountEntry < ActiveRecord::Migration[7.1]
           current_balance integer;
           new_balance integer;
         begin
-          perform pg_advisory_xact_lock(account_id);
 
           select credit_limit, balance
             into current_credit_limit, current_balance
             from accounts
-            where id = account_id;
+            where id = account_id
+            for update;
 
           new_balance = current_balance + value;
 

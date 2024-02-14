@@ -21,12 +21,12 @@ CREATE FUNCTION public.add_account_entry(account_id integer, value integer, desc
           current_balance integer;
           new_balance integer;
         begin
-          perform pg_advisory_xact_lock(account_id);
 
           select credit_limit, balance
             into current_credit_limit, current_balance
             from accounts
-            where id = account_id;
+            where id = account_id
+            for no key update;
 
           new_balance = current_balance + value;
 
