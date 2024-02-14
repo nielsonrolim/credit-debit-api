@@ -26,7 +26,7 @@ CREATE FUNCTION public.add_account_entry(account_id integer, value integer, desc
             into current_credit_limit, current_balance
             from accounts
             where id = account_id
-            for no key update;
+            for update;
 
           new_balance = current_balance + value;
 
