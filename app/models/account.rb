@@ -11,13 +11,17 @@
 class Account < ApplicationRecord
   has_many :account_entries
 
+  def last_account_entries
+    account_entries.order(created_at: :desc).limit(10)
+  end
+
   def add_account_entry(value:, description: '')
     Account.add_account_entry(account_id: id, value:, description:)
   end
 
   class << self
     def add_account_entry(account_id:, value:, description: '')
-      add_account_entry_ruby(account_id:, value:, description:)
+      add_account_entry_pg(account_id:, value:, description:)
     end
 
     private
@@ -33,7 +37,7 @@ class Account < ApplicationRecord
     # rubocop:disable Metrics/MethodLength
     def add_account_entry_ruby(account_id:, value:, description: '')
       Account.transaction do
-        account = Account.select(:id, :credit_limit, :balance).lock('FOR UPDATE').find(account_id)
+        account = Account.select(:id, :credit_limit, :balance).lock('FOR UPDATE NOWAIT').find(account_id)
         new_balance = account.balance + value
 
         if new_balance < account.credit_limit * -1
@@ -54,9 +58,5 @@ class Account < ApplicationRecord
       end
     end
     # rubocop:enable Metrics/MethodLength
-  end
-
-  def last_account_entries
-    account_entries.order(created_at: :desc).limit(10)
   end
 end
