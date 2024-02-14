@@ -1,0 +1,33 @@
+ARG RUBY_VERSION=3.3.0
+FROM ruby:$RUBY_VERSION-bookworm
+
+RUN apt-get update
+RUN apt-get install -y  git-core \
+                        zlib1g-dev \
+                        build-essential \
+                        libssl-dev \
+                        libreadline-dev \
+                        libyaml-dev \
+                        libsqlite3-dev \
+                        sqlite3 \
+                        libxml2-dev \
+                        libxslt1-dev \
+                        libcurl4-openssl-dev \
+                        software-properties-common \
+                        libffi-dev \
+                        libpq-dev \
+                        postgresql-client
+RUN apt-get clean
+
+RUN mkdir -p /app
+WORKDIR /app
+
+COPY Gemfile Gemfile.lock ./
+# COPY package.json yarn.lock ./
+
+ENV PATH="/app/bin:${PATH}"
+ENV BUNDLE_PATH /gems
+
+RUN gem update --system
+RUN bundle install -j $(nproc)
+# RUN yarn install

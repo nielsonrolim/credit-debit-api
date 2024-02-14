@@ -4,7 +4,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./Dockerfile.dev
+      dockerfile: ./Dockerfile.alpine
     depends_on:
       - postgres
     environment:
