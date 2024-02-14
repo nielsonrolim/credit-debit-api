@@ -5,13 +5,13 @@ services:
     image: nielsonrolim/credit-debit-api:latest
     hostname: api01
     environment:
+      - APP_PORT=3001
       - SECRET_KEY_BASE=316e3a0827a4a7d11a1c115ab0982221971b75eda88537e4b08226f4229eebe36a3f4eddeb187da1c908a9e7073fdc9d288f3a1b86156489543ce02276678208
       - WEB_CONCURRENCY=2
       - DATABASE_HOST=postgres
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=password
       - DATABASE_PORT=5432
-    command: bundle exec rails server -p 3001 -b 0.0.0.0
     # ports:
     #   - "3001:3000"
     network_mode: "host"
@@ -28,7 +28,14 @@ services:
   api02:
     <<: *api
     hostname: api02
-    command: bundle exec rails server -p 3002 -b 0.0.0.0
+    environment:
+      - APP_PORT=3002
+      - SECRET_KEY_BASE=316e3a0827a4a7d11a1c115ab0982221971b75eda88537e4b08226f4229eebe36a3f4eddeb187da1c908a9e7073fdc9d288f3a1b86156489543ce02276678208
+      - WEB_CONCURRENCY=2
+      - DATABASE_HOST=postgres
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=password
+      - DATABASE_PORT=5432
     # ports:
     #   - "3002:3000"
 
