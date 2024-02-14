@@ -17,7 +17,7 @@ class Account < ApplicationRecord
 
   class << self
     def add_account_entry(account_id:, value:, description: '')
-      add_account_entry_ruby(account_id:, value:, description:)
+      add_account_entry_pg(account_id:, value:, description:)
     end
 
     private
