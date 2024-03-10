@@ -11,6 +11,11 @@ More info about the challenge here: https://github.com/zanfranceschi/rinha-de-ba
 - Blueprinter 1.0.2 as serializer
 - Oj 3.16.3 as JSON parsers
 
+## Test and performance results
+
+![WhatsApp Image 2024-02-14 at 17 54 06](https://github.com/nielsonrolim/credit-debit-api/assets/607248/61bf59f3-ae71-4dd9-ae2d-cee3f15a166a)
+
+
 ## Running the application
 
 ### Requirements
